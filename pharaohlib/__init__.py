@@ -1,4 +1,4 @@
-from pharaohlib.phar import Phar, AddSuggestion, RemoveSuggestion, Mode
+from pharaohlib.phar import Phar, AddSuggestion, RemoveSuggestion
 
-__version__ = '0.0.1'
+__version__ = '0.1.0'
 __author__ = 'Ben Avrahami'

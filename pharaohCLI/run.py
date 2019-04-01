@@ -1,14 +1,13 @@
 import argparse
 
-from pharaohlib import Phar, AddSuggestion, RemoveSuggestion, Mode
+from pharaohlib import Phar, AddSuggestion, RemoveSuggestion
 
 from pharaohCLI.asker import Asker
 from pharaohCLI.__data__ import __version__
 
 
 def sync(phar: Phar, args: dict):
-    phar.fetch()
-    print(f'current destination is {phar.destination}')
+    print(f'current destination is {phar.destination_root}')
     rules = {'msg': 'show', 'add': 'ask', 'del': 'ask'}
     if args['rule']:
         for cat, action in args['rule']:
@@ -77,13 +76,7 @@ def main(args=None):
     set_dest_parser.add_argument('paths', nargs='+', action='store')
     set_dest_parser.set_defaults(set_destinations=True)
 
-    set_mode_parser = open_sub_parsers.add_parser('set_mode')
-    set_mode_parser.add_argument('mode')
-    set_mode_parser.set_defaults(set_mode=True)
-
     clean_list_parser = open_sub_parsers.add_parser('clean')
-    clean_list_parser.add_argument('--whitelist', '-w', action='store_true', default=False, dest='clean_white')
-    clean_list_parser.add_argument('--blacklist', '-b', action='store_true', default=False, dest='clean_black')
     clean_list_parser.set_defaults(clean_list=True)
 
     update_list_parser = open_sub_parsers.add_parser('update')
@@ -96,12 +89,9 @@ def main(args=None):
         phar = Phar()
         phar.destinations = args['destinations']
         phar.source = args['source']
-        phar.mode = Mode(args['mode'])
-        if args['fetch']:
-            phar.fetch()
         phar.write(open(args['path'], mode='x'))
     elif args.get('open'):
-        phar = Phar.read(open(args['path'], mode='r'))
+        phar = Phar.read(open(args['path'], mode='rb'))
         if args.get('sync'):
             sync(phar, args)
         elif args.get('set_source'):
@@ -110,17 +100,12 @@ def main(args=None):
             phar.destinations.extend(args['paths'])
         elif args.get('set_destinations'):
             phar.destinations = args['path']
-        elif args.get('set_mode'):
-            phar.mode = Mode(args['mode'])
         elif args.get('clean'):
-            if args['clean_white']:
-                phar.whitelist.clear()
-            if args['clean_black']:
-                phar.blacklist.clear()
+            phar.rules.clear()
         elif args.get('update'):
             pass
         else:
             raise Exception('unhandled args state')
-        phar.write(open(args['path'], mode='w'))
+        phar.write(open(args['path'], mode='wb'))
     else:
         raise Exception('must specify either create or open, run with -h to see help')
