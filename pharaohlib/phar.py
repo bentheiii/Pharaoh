@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Iterable, Union, Tuple, List, MutableMapping, TextIO, BinaryIO
 
 from abc import ABC, abstractmethod
@@ -74,7 +75,7 @@ class RemoveSuggestion(ChangeSuggestion):
         self.phar.remove_callback(self.file)
 
     def reject(self):
-        self.phar.rules.append((FilenameTrigger(self.file), Behaviour.white))
+        self.phar.rules.append((FilenameTrigger(re.escape(str(self.file))), Behaviour.white))
 
     def __str__(self):
         return f'remove {normalize_RTL(str(self.file))}'
